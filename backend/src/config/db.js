@@ -3,22 +3,18 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME || 'cordovaconnect',
-  process.env.DB_USER || 'root',
-  process.env.DB_PASSWORD || '',
-  {
-    host: process.env.DB_HOST || 'localhost',
-    dialect: 'postgres',
-    dialectOptions: process.env.NODE_ENV === 'production' ? {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'postgres',
+  dialectOptions: process.env.NODE_ENV === 'production'
+    ? {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
       }
-    } : {},
-    logging: false,
-  }
-);
+    : {},
+  logging: false,
+});
 
 const connectDB = async () => {
   try {
