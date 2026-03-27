@@ -25,8 +25,8 @@ services:
       - key: FRONTEND_URL
         sync: false # Put your vercel domain here later
 
-  # Optional Postgres Database if you want Render to host SQL
-  # - type: psql
-  #   name: cordovaconnect-db
-  #   plan: free
-  #   region: singapore
+  # PostgreSQL Database Add-on
+  - type: psql
+    name: cordovaconnect-db
+    plan: free
+    region: singapore
