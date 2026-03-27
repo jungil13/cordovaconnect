@@ -25,8 +25,7 @@ services:
       - key: FRONTEND_URL
         sync: false # Put your vercel domain here later
 
-  # PostgreSQL Database Add-on
-  - type: psql
-    name: cordovaconnect-db
+databases:
+  - name: cordovaconnect-db
     plan: free
     region: singapore
