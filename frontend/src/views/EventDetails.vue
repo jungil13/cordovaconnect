@@ -18,7 +18,7 @@ const currentUser = ref(JSON.parse(localStorage.getItem('user') || 'null'));
 const getProfilePic = (url) => {
   if (!url) return null;
   if (url.startsWith('http')) return url;
-  return `http://localhost:5000${url}`;
+  return `https://cordovaconnect-api.onrender.com${url}`;
 };
 
 const shareEvent = async () => {
@@ -102,7 +102,7 @@ const goBack = () => {
 const imageUrl = computed(() => {
   if (!event.value?.image_url) return null;
   if (event.value.image_url.startsWith('http')) return event.value.image_url;
-  return `http://localhost:5000${event.value.image_url}`;
+  return `https://cordovaconnect-api.onrender.com${event.value.image_url}`;
 });
 </script>
 

@@ -40,7 +40,7 @@ const markAsRead = async (id) => {
 onMounted(() => {
   fetchPersistentNotifications();
   
-  const socket = io('http://localhost:5000');
+  const socket = io('https://cordovaconnect-api.onrender.com');
   
   socket.on('event:approved', (event) => {
     notifications.value.push(`New event approved: ${event.title}`);
@@ -116,7 +116,7 @@ onMounted(() => {
     localStorage.removeItem('justLoggedIn');
   }
 
-  const socket = io('http://localhost:5000');
+  const socket = io('https://cordovaconnect-api.onrender.com');
   
   socket.on('event:approved', (event) => {
     notifications.value.push(`New event approved: ${event.title}`);
@@ -266,7 +266,7 @@ onMounted(() => {
              </div>
              <RouterLink to="/profile" class="relative group">
                 <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden transition-all group-hover:border-amber-200">
-                   <img v-if="user.profile_photo" :src="`http://localhost:5000${user.profile_photo}`" class="w-full h-full object-cover" />
+                   <img v-if="user.profile_photo" :src="`https://cordovaconnect-api.onrender.com${user.profile_photo}`" class="w-full h-full object-cover" />
                    <i v-else class="ph-bold ph-user-circle text-xl text-white"></i>
                 </div>
              </RouterLink>
@@ -360,7 +360,7 @@ onMounted(() => {
        </RouterLink>
        <RouterLink v-if="user" to="/profile" class="flex flex-col items-center gap-1 text-slate-400" active-class="text-primary scale-110">
           <div class="w-7 h-7 rounded-lg overflow-hidden border-2 border-transparent" :class="{'border-primary': $route.path === '/profile'}">
-             <img v-if="user.profile_photo" :src="`http://localhost:5000${user.profile_photo}`" class="w-full h-full object-cover" />
+             <img v-if="user.profile_photo" :src="`https://cordovaconnect-api.onrender.com${user.profile_photo}`" class="w-full h-full object-cover" />
              <i v-else class="ph-fill ph-user-circle text-2xl"></i>
           </div>
           <span class="text-[10px] font-black uppercase tracking-widest">Profile</span>

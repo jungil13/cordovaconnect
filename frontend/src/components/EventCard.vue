@@ -15,7 +15,7 @@ const formattedDate = computed(() => {
 const imageUrl = computed(() => {
   if (!props.event.image_url) return null;
   if (props.event.image_url.startsWith('http')) return props.event.image_url;
-  return `http://localhost:5000${props.event.image_url}`;
+  return `https://cordovaconnect-api.onrender.com${props.event.image_url}`;
 });
 </script>
 

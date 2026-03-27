@@ -495,7 +495,7 @@ onMounted(() => {
                 <tr v-for="user in users" :key="user.id" class="group bg-slate-50/50 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300">
                   <td class="py-6 pl-6 rounded-l-3xl">
                     <div class="flex items-center gap-3">
-                      <img :src="user.profile_photo ? `http://localhost:5000${user.profile_photo}` : 'https://ui-avatars.com/api/?name=' + user.name" class="w-10 h-10 rounded-xl object-cover border border-slate-200" />
+                      <img :src="user.profile_photo ? `https://cordovaconnect-api.onrender.com${user.profile_photo}` : 'https://ui-avatars.com/api/?name=' + user.name" class="w-10 h-10 rounded-xl object-cover border border-slate-200" />
                       <span class="font-bold text-slate-800">{{ user.name }}</span>
                     </div>
                   </td>
@@ -590,7 +590,7 @@ onMounted(() => {
            </div>
            <div class="px-8 pb-10">
               <div class="flex items-end justify-between -mt-16 mb-8">
-                 <img :src="selectedUser?.profile_photo ? `http://localhost:5000${selectedUser.profile_photo}` : 'https://ui-avatars.com/api/?name=' + selectedUser?.name" class="w-32 h-32 rounded-[2rem] object-cover border-8 border-white shadow-xl" />
+                 <img :src="selectedUser?.profile_photo ? `https://cordovaconnect-api.onrender.com${selectedUser.profile_photo}` : 'https://ui-avatars.com/api/?name=' + selectedUser?.name" class="w-32 h-32 rounded-[2rem] object-cover border-8 border-white shadow-xl" />
                  <div class="flex gap-2">
                     <button v-if="isEditingUser" @click="saveUserEdit" class="bg-emerald-500 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-emerald-500/20">Save All</button>
                     <button @click="showUserModal = false" class="bg-slate-100 p-2 rounded-xl text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x"></i></button>
@@ -677,7 +677,7 @@ onMounted(() => {
 
               <div v-if="!isEditingUser && selectedUser?.digital_id_photo" class="mt-8 space-y-3">
                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Digital ID Card</p>
-                 <img :src="`http://localhost:5000${selectedUser.digital_id_photo}`" class="w-full rounded-2xl border-2 border-slate-100" />
+                 <img :src="`https://cordovaconnect-api.onrender.com${selectedUser.digital_id_photo}`" class="w-full rounded-2xl border-2 border-slate-100" />
               </div>
            </div>
         </div>
