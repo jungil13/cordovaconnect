@@ -8,9 +8,11 @@ CordovaConnect is a comprehensive, modern community portal designed for the Muni
 
 ### Desktop & Mobile Views
 <div align="center">
-  <img src="docs/desktop-preview.png" alt="Desktop News and Events View" width="700"/>
+  <img src="<img width="376" height="824" alt="image" src="https://github.com/user-attachments/assets/2adfeacc-9aee-4561-9a04-4ff9a6b63bc9" />
+" alt="Desktop News and Events View" width="700"/>
   <br/><br/>
-  <img src="docs/mobile-preview.png" alt="Mobile Login View" width="300"/>
+  <img src="<img width="1680" height="918" alt="image" src="https://github.com/user-attachments/assets/710a7c97-39ea-4b30-b39e-3fbd5b82c554" />
+" alt="Mobile Login View" width="300"/>
   <p><i>(Note: Replace docs/desktop-preview.png and docs/mobile-preview.png with your actual image files)</i></p>
 </div>
 
