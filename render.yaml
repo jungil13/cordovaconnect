@@ -1,0 +1,32 @@
+services:
+  # Backend API Node Service
+  - type: web
+    name: cordovaconnect-api
+    env: node
+    plan: free
+    region: singapore # Adjust based on preference
+    buildCommand: npm install && cd backend && npm install
+    startCommand: cd backend && node server.js
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
+      - key: DB_NAME
+        value: cordovaconnect
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false # Put your vercel domain here later
+
+  # Optional Postgres Database if you want Render to host SQL
+  # - type: psql
+  #   name: cordovaconnect-db
+  #   plan: free
+  #   region: singapore
