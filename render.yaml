@@ -20,7 +20,7 @@ services:
         fromDatabase:
           name: cordovaconnect-db
           property: user
-      - key: DB_PASS
+      - key: DB_PASSWORD
         fromDatabase:
           name: cordovaconnect-db
           property: password

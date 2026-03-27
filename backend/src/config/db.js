@@ -10,6 +10,12 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST || 'localhost',
     dialect: 'postgres',
+    dialectOptions: process.env.NODE_ENV === 'production' ? {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    } : {},
     logging: false,
   }
 );
@@ -17,7 +23,7 @@ const sequelize = new Sequelize(
 const connectDB = async () => {
   try {
     await sequelize.authenticate();
-    console.log('MySQL Database connected successfully.');
+    console.log('PostgreSQL Database connected successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
     process.exit(1);
