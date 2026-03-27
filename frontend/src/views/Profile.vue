@@ -119,7 +119,6 @@ onMounted(fetchProfile);
         </div>
 
         <div class="space-y-2">
-           <h2 class="text-3xl md:text-4xl font-black text-white tracking-tight">{{ user.name }}</h2>
            <div class="flex flex-wrap items-center justify-center gap-3">
              <span class="px-4 py-1.5 rounded-full bg-secondary text-white font-black uppercase tracking-widest text-[9px] flex items-center gap-2">
                <i class="ph-fill ph-crown" v-if="user.role === 'SuperAdmin'"></i>

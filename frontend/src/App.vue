@@ -260,10 +260,7 @@ onMounted(() => {
                 </div>
              </div>
 
-             <div class="flex flex-col items-end shrink-0 hidden md:flex">
-                <span class="text-[9px] font-black uppercase tracking-widest text-white/40 leading-none">{{ user.role }}</span>
-                <span class="text-sm font-black text-white leading-tight">{{ user.name }}</span>
-             </div>
+
              <RouterLink to="/profile" class="relative group">
                 <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden transition-all group-hover:border-amber-200">
                    <img v-if="user.profile_photo" :src="`https://cordovaconnect-api.onrender.com${user.profile_photo}`" class="w-full h-full object-cover" />
@@ -323,9 +320,6 @@ onMounted(() => {
     <!-- Mobile Top Bar -->
     <header class="lg:hidden bg-primary text-white p-4 flex justify-between items-center sticky top-0 z-40 shadow-lg print:hidden">
        <div class="flex items-center gap-3">
-          <button @click="toggleMobileMenu" class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-             <i class="ph-bold ph-list text-xl"></i>
-          </button>
           <Logo light @click="router.push('/')" class="cursor-pointer" />
           <h2 v-if="pageTitle" class="text-[10px] font-black uppercase tracking-widest border-l border-white/20 pl-3 py-1 truncate max-w-[120px]">{{ pageTitle }}</h2>
        </div>
