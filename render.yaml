@@ -13,11 +13,17 @@ services:
       - key: NODE_ENV
         value: production
       - key: DB_HOST
-        sync: false
+        fromDatabase:
+          name: cordovaconnect-db
+          property: host
       - key: DB_USER
-        sync: false
+        fromDatabase:
+          name: cordovaconnect-db
+          property: user
       - key: DB_PASS
-        sync: false
+        fromDatabase:
+          name: cordovaconnect-db
+          property: password
       - key: DB_NAME
         value: cordovaconnect
       - key: JWT_SECRET
