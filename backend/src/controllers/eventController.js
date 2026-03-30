@@ -70,7 +70,7 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ message: 'Location name is required' });
     }
 
-    const eventImageUrl = req.file ? `/uploads/events/${req.file.filename}` : (image_url || null);
+    const eventImageUrl = req.file ? req.file.path : (image_url || null); // Cloudinary secure URL
 
     const eventData = {
       title, 

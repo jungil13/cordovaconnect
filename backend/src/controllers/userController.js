@@ -74,7 +74,7 @@ const updateProfile = async (req, res) => {
     if (id_number) user.id_number = id_number;
     
     if (req.file) {
-      user.profile_photo = `/uploads/profiles/${req.file.filename}`;
+      user.profile_photo = req.file.path; // Cloudinary secure URL
     }
 
     await user.save();

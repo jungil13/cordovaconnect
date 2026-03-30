@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { getEvents, getEventById, createEvent, updateEvent, deleteEvent, approveEvent } = require('../controllers/eventController');
 const { protect, superAdmin, barangayAdmin } = require('../middleware/authMiddleware');
-const uploadEvent = require('../middleware/uploadEvent');
+const { uploadEvent, uploadEventToCloudinary } = require('../middleware/uploadEvent');
 
 router.route('/')
   .get(getEvents)
-  .post(protect, uploadEvent.single('image'), createEvent);
+  .post(protect, uploadEvent.single('image'), uploadEventToCloudinary('events'), createEvent);
 
 router.route('/:id')
   .get(getEventById)
