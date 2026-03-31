@@ -5,6 +5,13 @@ dotenv.config();
 
 const dbUrl = (process.env.DATABASE_URL || '').trim();
 
+if (dbUrl) {
+  const url = new URL(dbUrl);
+  console.log('Connecting to database host:', url.hostname);
+} else {
+  console.log('Connecting to database host:', process.env.DB_HOST || 'localhost');
+}
+
 const sequelize = dbUrl
   ? new Sequelize(dbUrl, {
       dialect: 'postgres',
