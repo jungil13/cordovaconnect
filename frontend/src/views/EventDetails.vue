@@ -18,7 +18,7 @@ const currentUser = ref(JSON.parse(localStorage.getItem('user') || 'null'));
 const getProfilePic = (url) => {
   if (!url) return null;
   if (url.startsWith('http')) return url;
-  return `https://cordovaconnect-api.onrender.com${url}`;
+  return `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${url}`;
 };
 
 const shareEvent = async () => {

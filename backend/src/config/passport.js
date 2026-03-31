@@ -11,7 +11,7 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   console.error('Missing Google credentials in .env file');
 }
 
-const callbackURL = 'http://localhost:5000/api/auth/google/callback';
+const callbackURL = `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/auth/google/callback`;
 
 console.log('Using callbackURL:', callbackURL);
 

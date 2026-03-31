@@ -10,7 +10,7 @@ router.route('/')
 
 router.route('/:id')
   .get(getEventById)
-  .put(protect, updateEvent)
+  .put(protect, uploadEvent.single('image'), uploadEventToCloudinary('events'), updateEvent)
   .delete(protect, deleteEvent);
 
 router.patch('/:id/approve', protect, superAdmin, approveEvent);

@@ -153,7 +153,16 @@ const updateEvent = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    await event.update(req.body);
+    console.log('Update Request Body:', req.body);
+    console.log('Update Request File:', req.file);
+
+    const eventData = { ...req.body };
+    if (req.file) {
+      eventData.image_url = req.file.path;
+      console.log('New Image URL:', eventData.image_url);
+    }
+
+    await event.update(eventData);
     res.json(event);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -192,6 +201,18 @@ const approveEvent = async (req, res) => {
     }
 
     res.json(event);
+
+    // Notify the author if approved
+    if (status === 'approved') {
+      const { Notification } = require('../models');
+      await Notification.create({
+        user_id: event.user_id,
+        type: 'EventApproval',
+        title: 'Post Approved! 🎉',
+        message: `Your event "${event.title}" has been approved and is now live.`,
+        link: `/events/${event.id}`
+      });
+    }
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
   }

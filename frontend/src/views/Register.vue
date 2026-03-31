@@ -37,7 +37,7 @@ const handlePhotoChange = (e) => {
 };
 
 const handleGoogleLogin = () => {
-  window.location.href = 'https://cordovaconnect-api.onrender.com/api/auth/google';
+  window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/google`;
 };
 
 const handleRegister = async () => {

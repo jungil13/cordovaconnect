@@ -8,7 +8,7 @@ const dbUrl = (process.env.DATABASE_URL || '').trim();
 const sequelize = dbUrl
   ? new Sequelize(dbUrl, {
       dialect: 'postgres',
-      dialectOptions: (process.env.NODE_ENV === 'production' || (process.env.DB_HOST && process.env.DB_HOST.includes('render.com'))) ? {
+      dialectOptions: (process.env.NODE_ENV === 'production' || (process.env.DB_HOST && process.env.DB_HOST.includes('render.com')) || (dbUrl && dbUrl.includes('render.com'))) ? {
         ssl: {
           require: true,
           rejectUnauthorized: false

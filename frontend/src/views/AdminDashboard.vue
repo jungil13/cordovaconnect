@@ -14,7 +14,7 @@ const activeTab = ref('events');
 const isEditingUser = ref(false);
 const editUserForm = ref({ name: '', birthdate: '', address: '', emergency_contact: '', id_number: '', role: '', barangay_id: '' });
 const tabs = [
-  { id: 'events', label: 'Moderation', icon: 'ph-fill ph-check-square' },
+  { id: 'events', label: 'Events', icon: 'ph-fill ph-check-square' },
   { id: 'announcements', label: 'Alerts', icon: 'ph-fill ph-lightning' },
   { id: 'users', label: 'Directory', icon: 'ph-fill ph-users' },
   { id: 'officials', label: 'Officials', icon: 'ph-fill ph-identification-badge' },
@@ -28,10 +28,22 @@ const stats = ref([
 ]);
 
 const pendingEvents = ref([]);
+const approvedEvents = ref([]);
+const eventSubTab = ref('pending');
 const users = ref([]);
 const officials = ref([]);
 const barangays = ref([]);
 const loading = ref({ events: true, users: true, officials: true, barangays: true });
+const showEventEditModal = ref(false);
+const editImageFile = ref(null);
+const editingEvent = ref({
+  id: null,
+  title: '',
+  description: '',
+  start_datetime: '',
+  location_name: '',
+  category_id: ''
+});
 
 const fetchBarangays = async () => {
   loading.value.barangays = true;
@@ -48,6 +60,15 @@ const fetchPending = async () => {
     const res = await api.get('/events?status=pending');
     pendingEvents.value = res.data;
     stats.value[0].value = res.data.length.toString();
+  } catch (err) { console.error(err); }
+  finally { loading.value.events = false; }
+};
+
+const fetchApproved = async () => {
+  loading.value.events = true;
+  try {
+    const res = await api.get('/events?status=approved');
+    approvedEvents.value = res.data;
   } catch (err) { console.error(err); }
   finally { loading.value.events = false; }
 };
@@ -100,7 +121,67 @@ const rejectEvent = async (id) => {
      await api.delete(`/events/${id}`);
      toast.addToast('Event rejected and removed.', 'info');
      fetchPending();
+     fetchApproved();
   } catch (err) { toast.addToast('Rejection failed', 'error'); }
+};
+
+const openEditEvent = (event) => {
+  editingEvent.value = {
+    id: event.id,
+    title: event.title,
+    description: event.description,
+    start_datetime: event.start_datetime ? new Date(event.start_datetime).toISOString().slice(0, 16) : '',
+    location_name: event.location_name,
+    category_id: event.category_id
+  };
+  editImageFile.value = null;
+  showEventEditModal.value = true;
+};
+
+const handleEditImage = (e) => {
+  editImageFile.value = e.target.files[0];
+};
+
+const saveEventEdit = async () => {
+  try {
+    const formData = new FormData();
+    formData.append('title', editingEvent.value.title);
+    formData.append('description', editingEvent.value.description);
+    formData.append('start_datetime', editingEvent.value.start_datetime);
+    formData.append('location_name', editingEvent.value.location_name);
+    formData.append('category_id', editingEvent.value.category_id);
+    
+    if (editImageFile.value) {
+      formData.append('image', editImageFile.value);
+      console.log('Appending image:', editImageFile.value.name);
+    }
+
+    console.log('Sending FormData to:', `/events/${editingEvent.value.id}`);
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+
+    await api.put(`/events/${editingEvent.value.id}`, formData);
+
+    toast.addToast('Event updated successfully!', 'success');
+    showEventEditModal.value = false;
+    fetchPending();
+    fetchApproved();
+  } catch (err) {
+    toast.addToast('Failed to update event', 'error');
+  }
+};
+
+const deleteApprovedEvent = (id) => {
+  openConfirm(async () => {
+    try {
+      await api.delete(`/events/${id}`);
+      toast.addToast('Event removed successfully', 'success');
+      fetchApproved();
+    } catch (err) {
+      toast.addToast('Deletion failed', 'error');
+    }
+  });
 };
 
 const openConfirm = (action) => {
@@ -128,6 +209,7 @@ const deleteOfficial = async (id) => {
 
 onMounted(() => {
   fetchPending();
+  fetchApproved();
   fetchUsers();
   fetchOfficials();
   fetchBarangays();
@@ -220,8 +302,15 @@ const addCategory = async () => {
   } catch (err) { toast.addToast('Failed to add category', 'error'); }
 };
 
+const resolvePhoto = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${path}`;
+};
+
 onMounted(() => {
   fetchPending();
+  fetchApproved();
   fetchUsers();
   fetchOfficials();
   fetchBarangays();
@@ -288,13 +377,29 @@ onMounted(() => {
         <div v-if="activeTab === 'events'" class="space-y-8">
           <div class="flex items-center justify-between">
             <h3 class="text-2xl font-black text-slate-900 flex items-center gap-3">
-               <i class="ph-fill ph-check-square text-primary"></i> Content Review
+               <i class="ph-fill ph-check-square text-primary"></i> Content Management
             </h3>
-            <span class="text-xs font-bold text-slate-500 bg-slate-50 px-4 py-2 rounded-full">{{ pendingEvents.length }} Pending Items</span>
+            <div class="flex bg-slate-50 p-1 rounded-xl border border-slate-100 overflow-hidden">
+               <button 
+                 @click="eventSubTab = 'pending'"
+                 :class="['px-6 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all', 
+                   eventSubTab === 'pending' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-400 hover:text-slate-600']"
+               >
+                 Review ({{ pendingEvents.length }})
+               </button>
+               <button 
+                 @click="eventSubTab = 'approved'"
+                 :class="['px-6 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all', 
+                   eventSubTab === 'approved' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-400 hover:text-slate-600']"
+               >
+                 All Active ({{ approvedEvents.length }})
+               </button>
+            </div>
           </div>
 
-          <div class="overflow-x-auto -mx-4 px-4" v-if="pendingEvents.length > 0">
-            <table class="w-full min-w-[640px] text-left border-separate border-spacing-y-4">
+          <!-- Table Container -->
+          <div class="overflow-x-auto -mx-4 px-4">
+            <table v-if="(eventSubTab === 'pending' ? pendingEvents : approvedEvents).length > 0" class="w-full min-w-[640px] text-left border-separate border-spacing-y-4">
               <thead>
                 <tr class="text-xs font-black text-slate-400 uppercase tracking-widest px-4">
                   <th class="pb-4 pl-6">Event Title</th>
@@ -305,7 +410,7 @@ onMounted(() => {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in pendingEvents" :key="item.id" class="group bg-slate-50/50 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300">
+                <tr v-for="item in (eventSubTab === 'pending' ? pendingEvents : approvedEvents)" :key="item.id" class="group bg-slate-50/50 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300">
                   <td class="py-6 pl-6 rounded-l-3xl">
                     <div class="flex items-center gap-3">
                        <span class="font-bold text-slate-800">{{ item.title }}</span>
@@ -324,7 +429,7 @@ onMounted(() => {
                     </span>
                   </td>
                   <td class="text-right pr-6 rounded-r-3xl">
-                    <div class="flex justify-end gap-2">
+                    <div v-if="eventSubTab === 'pending'" class="flex justify-end gap-2">
                        <button @click="approveEvent(item.id)" class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-emerald-500 hover:bg-emerald-500 hover:text-white transition shadow-sm btn-animate">
                          <i class="ph-bold ph-check"></i>
                        </button>
@@ -332,14 +437,22 @@ onMounted(() => {
                          <i class="ph-bold ph-trash"></i>
                        </button>
                     </div>
+                    <div v-else class="flex justify-end gap-2">
+                       <button @click="openEditEvent(item)" class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-primary hover:bg-primary hover:text-white transition shadow-sm btn-animate">
+                         <i class="ph-bold ph-note-pencil"></i>
+                       </button>
+                       <button @click="deleteApprovedEvent(item.id)" class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-red-500 hover:bg-red-500 hover:text-white transition shadow-sm btn-animate">
+                         <i class="ph-bold ph-trash"></i>
+                       </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
             </table>
-          </div>
-          <div v-else class="text-center py-20 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">
-             <i class="ph-bold ph-ghost text-4xl text-slate-300 mb-2 block"></i>
-             <p class="text-slate-400 font-bold">No pending events found.</p>
+            <div v-else class="text-center py-20 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">
+               <i class="ph-bold ph-ghost text-4xl text-slate-300 mb-2 block"></i>
+               <p class="text-slate-400 font-bold">No {{ eventSubTab }} events found.</p>
+            </div>
           </div>
         </div>
 
@@ -495,7 +608,7 @@ onMounted(() => {
                 <tr v-for="user in users" :key="user.id" class="group bg-slate-50/50 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300">
                   <td class="py-6 pl-6 rounded-l-3xl">
                     <div class="flex items-center gap-3">
-                      <img :src="user.profile_photo ? `https://cordovaconnect-api.onrender.com${user.profile_photo}` : 'https://ui-avatars.com/api/?name=' + user.name" class="w-10 h-10 rounded-xl object-cover border border-slate-200" />
+                      <img :src="user.profile_photo ? resolvePhoto(user.profile_photo) : 'https://ui-avatars.com/api/?name=' + user.name" class="w-10 h-10 rounded-xl object-cover border border-slate-200" />
                       <span class="font-bold text-slate-800">{{ user.name }}</span>
                     </div>
                   </td>
@@ -579,7 +692,58 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Modals -->
+      <!-- Modals -->
+      <div v-if="showEventEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="showEventEditModal = false"></div>
+          <div class="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl relative z-10 overflow-hidden slide-up max-h-[90vh] overflow-y-auto hide-scrollbar">
+              <div class="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                  <h3 class="text-xl font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                     <i class="ph-fill ph-note-pencil text-primary"></i> Edit Event Post
+                  </h3>
+                  <button @click="showEventEditModal = false" class="text-slate-400 hover:text-slate-600 transition-transform active:scale-75"><i class="ph-bold ph-x text-lg"></i></button>
+              </div>
+              <div class="p-8 space-y-6">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div class="space-y-1">
+                          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Event Title</label>
+                          <input v-model="editingEvent.title" class="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-4 focus:ring-primary/5 font-bold"/>
+                      </div>
+                      <div class="space-y-1">
+                          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date & Time</label>
+                          <input v-model="editingEvent.start_datetime" type="datetime-local" class="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-4 focus:ring-primary/5 font-bold"/>
+                      </div>
+                      <div class="space-y-1">
+                          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Location</label>
+                          <input v-model="editingEvent.location_name" class="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-4 focus:ring-primary/5 font-bold"/>
+                      </div>
+                      <div class="space-y-1">
+                          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                          <select v-model="editingEvent.category_id" class="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-4 focus:ring-primary/5 font-bold appearance-none">
+                              <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
+                          </select>
+                      </div>
+                  </div>
+                  <div class="space-y-1">
+                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Event Description</label>
+                      <textarea v-model="editingEvent.description" rows="3" class="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-4 focus:ring-primary/5 font-medium resize-none"></textarea>
+                  </div>
+
+                  <div class="space-y-1">
+                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Update Poster Image (Optional)</label>
+                      <div class="relative group cursor-pointer">
+                        <input type="file" @change="handleEditImage" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                        <div class="w-full px-5 py-6 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 group-hover:border-primary transition-colors">
+                           <i class="ph-bold ph-image-square text-2xl text-slate-400 group-hover:text-primary"></i>
+                           <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ editImageFile ? editImageFile.name : 'Click or drop new image here' }}</span>
+                        </div>
+                      </div>
+                  </div>
+
+                  <button @click="saveEventEdit" class="w-full bg-primary text-white py-5 rounded-2xl font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-xs">Save Changes</button>
+              </div>
+          </div>
+      </div>
+
      <div v-if="showUserModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="showUserModal = false"></div>
         <div class="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl relative z-10 overflow-hidden slide-up max-h-[90vh] overflow-y-auto hide-scrollbar">
@@ -590,7 +754,7 @@ onMounted(() => {
            </div>
            <div class="px-8 pb-10">
               <div class="flex items-end justify-between -mt-16 mb-8">
-                 <img :src="selectedUser?.profile_photo ? `https://cordovaconnect-api.onrender.com${selectedUser.profile_photo}` : 'https://ui-avatars.com/api/?name=' + selectedUser?.name" class="w-32 h-32 rounded-[2rem] object-cover border-8 border-white shadow-xl" />
+                 <img :src="selectedUser?.profile_photo ? resolvePhoto(selectedUser.profile_photo) : 'https://ui-avatars.com/api/?name=' + selectedUser?.name" class="w-32 h-32 rounded-[2rem] object-cover border-8 border-white shadow-xl" />
                  <div class="flex gap-2">
                     <button v-if="isEditingUser" @click="saveUserEdit" class="bg-emerald-500 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-emerald-500/20">Save All</button>
                     <button @click="showUserModal = false" class="bg-slate-100 p-2 rounded-xl text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x"></i></button>
@@ -677,7 +841,7 @@ onMounted(() => {
 
               <div v-if="!isEditingUser && selectedUser?.digital_id_photo" class="mt-8 space-y-3">
                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Digital ID Card</p>
-                 <img :src="`https://cordovaconnect-api.onrender.com${selectedUser.digital_id_photo}`" class="w-full rounded-2xl border-2 border-slate-100" />
+                 <img :src="resolvePhoto(selectedUser.digital_id_photo)" class="w-full rounded-2xl border-2 border-slate-100" />
               </div>
            </div>
         </div>

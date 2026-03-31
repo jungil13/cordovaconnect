@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://cordovaconnect-api.onrender.com/api', // To be environment-driven later
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
 });
 
 api.interceptors.request.use((config) => {

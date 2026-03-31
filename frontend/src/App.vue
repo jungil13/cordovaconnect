@@ -40,7 +40,7 @@ const markAsRead = async (id) => {
 onMounted(() => {
   fetchPersistentNotifications();
   
-  const socket = io('https://cordovaconnect-api.onrender.com');
+  const socket = io(import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000');
   
   socket.on('event:approved', (event) => {
     notifications.value.push(`New event approved: ${event.title}`);
@@ -76,8 +76,7 @@ const pageTitle = computed(() => {
 });
 
 const canPost = computed(() => {
-  if (!user.value) return false;
-  return ['SuperAdmin', 'BarangayOfficial', 'BarangayWorker'].includes(user.value.role);
+  return !!user.value;
 });
 
 const showLogoutModal = ref(false);
@@ -116,7 +115,7 @@ onMounted(() => {
     localStorage.removeItem('justLoggedIn');
   }
 
-  const socket = io('https://cordovaconnect-api.onrender.com');
+  const socket = io(import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000');
   
   socket.on('event:approved', (event) => {
     notifications.value.push(`New event approved: ${event.title}`);
@@ -138,6 +137,11 @@ onMounted(() => {
     }
   });
 });
+const resolvePhoto = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${path}`;
+};
 </script>
 <template>
   <div class="min-h-screen flex flex-col font-sans relative bg-slate-50 pb-20 lg:pb-0">
@@ -263,7 +267,7 @@ onMounted(() => {
 
              <RouterLink to="/profile" class="relative group">
                 <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden transition-all group-hover:border-amber-200">
-                   <img v-if="user.profile_photo" :src="`https://cordovaconnect-api.onrender.com${user.profile_photo}`" class="w-full h-full object-cover" />
+                   <img v-if="user.profile_photo" :src="resolvePhoto(user.profile_photo)" class="w-full h-full object-cover" />
                    <i v-else class="ph-bold ph-user-circle text-xl text-white"></i>
                 </div>
              </RouterLink>
@@ -354,7 +358,7 @@ onMounted(() => {
        </RouterLink>
        <RouterLink v-if="user" to="/profile" class="flex flex-col items-center gap-1 text-slate-400" active-class="text-primary scale-110">
           <div class="w-7 h-7 rounded-lg overflow-hidden border-2 border-transparent" :class="{'border-primary': $route.path === '/profile'}">
-             <img v-if="user.profile_photo" :src="`https://cordovaconnect-api.onrender.com${user.profile_photo}`" class="w-full h-full object-cover" />
+             <img v-if="user.profile_photo" :src="resolvePhoto(user.profile_photo)" class="w-full h-full object-cover" />
              <i v-else class="ph-fill ph-user-circle text-2xl"></i>
           </div>
           <span class="text-[10px] font-black uppercase tracking-widest">Profile</span>

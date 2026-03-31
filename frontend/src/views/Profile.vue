@@ -88,6 +88,12 @@ const downloadID = () => {
   window.print();
 };
 
+const resolvePhoto = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${path}`;
+};
+
 onMounted(fetchProfile);
 </script>
 
@@ -106,7 +112,7 @@ onMounted(fetchProfile);
         <div class="relative group">
           <div class="w-32 h-32 md:w-36 md:h-36 rounded-[2.5rem] bg-white p-2 shadow-2xl">
             <div class="w-full h-full rounded-[2rem] bg-primary flex items-center justify-center text-white text-5xl font-black overflow-hidden relative">
-               <img v-if="user.profile_photo" :src="`https://cordovaconnect-api.onrender.com${user.profile_photo}`" class="w-full h-full object-cover" />
+               <img v-if="user.profile_photo" :src="resolvePhoto(user.profile_photo)" class="w-full h-full object-cover" />
                <span v-else>{{ user.name?.charAt(0) }}</span>
                
                <div v-if="isEditing" @click="$refs.fileInput.click()" class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
@@ -255,7 +261,7 @@ onMounted(fetchProfile);
                    <div class="flex px-5 py-6 gap-4 shrink-0">
                       <!-- Photo -->
                       <div class="w-[84px] h-[100px] rounded-2xl overflow-hidden border border-white/20 shrink-0 bg-slate-800 shadow-xl">
-                         <img :src="user.profile_photo ? `https://cordovaconnect-api.onrender.com${user.profile_photo}` : '/src/assets/images/default-avatar.png'" class="w-full h-full object-cover" />
+                         <img :src="user.profile_photo ? resolvePhoto(user.profile_photo) : '/src/assets/images/default-avatar.png'" class="w-full h-full object-cover" />
                       </div>
                       
                       <!-- Info -->
