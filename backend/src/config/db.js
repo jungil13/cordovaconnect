@@ -4,10 +4,16 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const dbUrl = (process.env.DATABASE_URL || '').trim();
+console.log('DEBUG: DATABASE_URL exists?', !!dbUrl, 'Length:', dbUrl.length);
 
 if (dbUrl) {
-  const url = new URL(dbUrl);
-  console.log('Connecting to database host:', url.hostname);
+  try {
+    const url = new URL(dbUrl);
+    console.log('Connecting to database host:', url.hostname);
+  } catch (e) {
+    console.log('DEBUG: Failed to parse dbUrl as URL');
+    console.log('Connecting to database host:', process.env.DB_HOST || 'localhost');
+  }
 } else {
   console.log('Connecting to database host:', process.env.DB_HOST || 'localhost');
 }
