@@ -22,7 +22,7 @@ const register = async (req, res) => {
       email,
       password: hashedPassword,
       barangay_id: barangay_id || null, // Optional for Visitors
-      profile_photo: req.file ? `/uploads/profiles/${req.file.filename}` : null,
+      profile_photo: req.file ? req.file.path : null, // Cloudinary secure URL
     };
 
     // Only allow role assignment if admin? For now, allow for easier testing or handle separately

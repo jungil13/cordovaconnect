@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { register, login, getMe } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
-const upload = require('../middleware/upload');
+const { upload, uploadToCloudinary } = require('../middleware/upload');
 
 const jwt = require('jsonwebtoken');
 const passport = require('../config/passport');
 
-router.post('/register', upload.single('profile_photo'), register);
+router.post('/register', upload.single('profile_photo'), uploadToCloudinary('profiles'), register);
 router.post('/login', login);
 router.get('/me', protect, getMe);
 
